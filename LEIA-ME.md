@@ -2,10 +2,19 @@
 
 Página estática. Sem build, sem dependência, sem framework.
 
+**URL para usar no Google Ads:** `https://daily-care.online/nerve-fresh/`
+
 ```
-index.html      a página inteira (HTML + CSS + tudo)
-assets/         as 10 imagens (hospedadas aqui, não no servidor do fornecedor)
+index.html            redirect automático para /nerve-fresh/
+nerve-fresh/index.html  a página inteira (HTML + CSS + tudo)
+nerve-fresh/assets/     as 10 imagens (hospedadas aqui, não no servidor do fornecedor)
+CNAME                  criado automaticamente pelo GitHub Pages (não editar manualmente)
 ```
+
+A página foi movida para dentro de `/nerve-fresh/` para que a URL mostre o nome do
+produto durante a navegação (ex: `daily-care.online/nerve-fresh/#formula` em vez de
+só `daily-care.online/#formula`). Quem acessa a raiz do domínio é redirecionado
+automaticamente.
 
 ## Links de compra usados (todos testados e confirmados)
 
