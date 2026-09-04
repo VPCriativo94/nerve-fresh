@@ -67,7 +67,7 @@
                box-shadow var(--t-base),backdrop-filter var(--t-base);
   }
   header.condensed{
-    background:rgba(255,255,255,.82);
+    background:rgba(255,255,255,.96);
     backdrop-filter:saturate(180%) blur(14px);
     box-shadow:0 2px 20px rgba(13,43,51,.08);
   }
@@ -119,7 +119,7 @@
     .btn:hover{background:var(--amber-dark);transform:translateY(-2px) scale(1.015);box-shadow:0 8px 22px rgba(246,167,35,.45)}
     .btn:hover::after{transform:translateX(120%)}
   }
-  .btn-sm{padding:10px 20px;font-size:14px}
+  .btn-sm{padding:11px 20px;font-size:14px}
   .btn-block{display:block;width:100%}
   .btn-ghost{background:transparent;color:var(--teal);border:2px solid var(--teal);box-shadow:none}
   @media (hover:hover) and (pointer:fine){ .btn-ghost:hover{background:var(--teal);color:#fff} }
@@ -254,7 +254,7 @@
   .bcount{font-size:13px;font-weight:700;color:var(--ink-soft);font-variant-numeric:tabular-nums}
   .barrows{display:flex;gap:8px}
   .barrow{
-    width:38px;height:38px;border-radius:999px;border:1px solid var(--line);background:#fff;color:var(--teal);
+    width:44px;height:44px;border-radius:999px;border:1px solid var(--line);background:#fff;color:var(--teal);
     font-size:16px;font-weight:800;cursor:pointer;font-family:inherit;line-height:1;
     transition:border-color var(--t-base) var(--ease-out),background var(--t-base) var(--ease-out),transform var(--t-fast);
     -webkit-tap-highlight-color:transparent;
@@ -268,7 +268,8 @@
     display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;justify-content:center;
     font-size:12px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-soft);
   }
-  .bseals i{color:var(--line);font-style:normal}
+  .bseals span{white-space:nowrap}
+  .bseals span:not(:first-child)::before{content:"/";margin-right:10px;color:var(--line);font-weight:400}
   .bnote{margin:18px 0 0;font-size:12.5px;color:var(--ink-soft);text-align:center}
 
   .bfade{animation:bfade .38s var(--ease-out) both}
@@ -507,6 +508,7 @@
     .reveal{opacity:1 !important;transform:none !important}
   }
 </style>
+<noscript><style>.reveal{opacity:1 !important;transform:none !important}</style></noscript>
 </head>
 <body>
 
@@ -628,9 +630,9 @@
         </div>
 
         <div class="bseals">
-          <span>All Natural &amp; Non-GMO</span><i>/</i>
-          <span>Made in the USA</span><i>/</i>
-          <span>GMP Certified</span><i>/</i>
+          <span>All Natural &amp; Non-GMO</span>
+          <span>Made in the USA</span>
+          <span>GMP Certified</span>
           <span>FDA-Registered Facility</span>
         </div>
       </div>
@@ -916,6 +918,18 @@
 
 <script>
 (function(){
+  /* failsafe: se o bloco de interacao lancar um erro em qualquer ponto,
+     nunca deixe secoes com .reveal invisiveis para sempre. */
+  function forceRevealAll(){
+    document.querySelectorAll('.reveal').forEach(function(el){
+      el.classList.remove('reveal');
+      el.classList.add('in');
+      el.style.removeProperty('--d');
+    });
+  }
+
+  try {
+
   var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   var canHover = matchMedia('(hover:hover) and (pointer:fine)').matches;
 
@@ -1047,6 +1061,11 @@
       if(d.open) faqItems.forEach(function(o){ if(o!==d) o.open = false; });
     });
   });
+
+  } catch(err){
+    /* qualquer erro acima nao pode deixar o conteudo invisivel */
+    forceRevealAll();
+  }
 })();
 </script>
 
