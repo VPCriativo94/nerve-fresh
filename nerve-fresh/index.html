@@ -1284,8 +1284,7 @@
 (function(){
   try {
     var ADS_ID    = 'AW-18389681906';
-    var ADS_LABEL = ''; /* <<< rotulo da acao de conversao. Enquanto vazio,
-                              nenhum evento e enviado (so o rastreio do clique). */
+    var ADS_LABEL = 'HPHNCLn7ve4cEPKN8cBE'; /* acao de conversao "Compra" */
 
     var STORE_KEY = 'ds24_click';
     var MAX_AGE   = 90 * 24 * 60 * 60 * 1000; /* 90 dias, igual a janela do Google Ads */
@@ -1318,9 +1317,23 @@
           a.href = u.toString();
         } catch(e){}
       }
-      a.addEventListener('click', function(){
+      a.addEventListener('click', function(ev){
         if (!ADS_LABEL) return;
-        try { gtag('event', 'conversion', { send_to: ADS_ID + '/' + ADS_LABEL }); } catch(e){}
+        /* deixa o navegador cuidar de abrir em nova aba / clique do meio */
+        if (ev.button !== 0 || ev.ctrlKey || ev.metaKey || ev.shiftKey || ev.altKey) return;
+
+        /* segura a navegacao so o tempo de registrar a conversao, com teto
+           curto: rastreamento nunca pode atrasar (nem impedir) uma compra */
+        ev.preventDefault();
+        var destino = a.href, saiu = false;
+        var ir = function(){ if (saiu) return; saiu = true; window.location = destino; };
+        setTimeout(ir, 800);
+        try {
+          gtag('event', 'conversion', {
+            send_to: ADS_ID + '/' + ADS_LABEL,
+            event_callback: ir
+          });
+        } catch(e){ ir(); }
       });
     });
   } catch(e){}
