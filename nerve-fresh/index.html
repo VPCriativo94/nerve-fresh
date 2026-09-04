@@ -3,6 +3,17 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=AW-18389681906"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'AW-18389681906');
+</script>
+
 <title>Nerve Fresh — Daily Nerve Support Formula</title>
 <meta name="description" content="Nerve Fresh combines five plant extracts with essential vitamin and mineral support for healthy nerve function. Free shipping. 180-day money-back guarantee.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1256,6 +1267,63 @@
   }
 
   render(0); paint();
+})();
+</script>
+
+<script>
+/* ================= Google Ads: rastreamento de conversao =================
+   A venda acontece no checkout da Digistore24, que nao e nosso. Entao:
+   1) guardamos o identificador do clique do anuncio (gclid) do visitante;
+   2) repassamos esse identificador para a Digistore24 no parametro
+      "trackingkey", que fica gravado junto com o pedido. E ele que permite,
+      depois, dizer ao Google exatamente qual clique virou venda;
+   3) avisamos o Google quando a pessoa segue para o checkout (conversao
+      intermediaria, NAO e venda - deve ficar como "Secundaria" no Google Ads).
+   Bloco isolado e com try/catch: se algo aqui falhar, a pagina continua
+   funcionando normalmente. ========================================== */
+(function(){
+  try {
+    var ADS_ID    = 'AW-18389681906';
+    var ADS_LABEL = ''; /* <<< rotulo da acao de conversao. Enquanto vazio,
+                              nenhum evento e enviado (so o rastreio do clique). */
+
+    var STORE_KEY = 'ds24_click';
+    var MAX_AGE   = 90 * 24 * 60 * 60 * 1000; /* 90 dias, igual a janela do Google Ads */
+
+    /* --- 1. captura o identificador do clique vindo do anuncio --- */
+    try {
+      var qs = new URLSearchParams(location.search);
+      var id = qs.get('gclid') || qs.get('gbraid') || qs.get('wbraid');
+      if (id) localStorage.setItem(STORE_KEY, JSON.stringify({ v: id, t: Date.now() }));
+    } catch(e){}
+
+    function clickId(){
+      try {
+        var raw = localStorage.getItem(STORE_KEY);
+        if (!raw) return '';
+        var o = JSON.parse(raw);
+        if (!o || !o.v || (Date.now() - o.t) > MAX_AGE) return '';
+        return o.v;
+      } catch(e){ return ''; }
+    }
+
+    var id = clickId();
+
+    /* --- 2 e 3. prepara cada botao de compra --- */
+    document.querySelectorAll('a[href*="digistore24.com"]').forEach(function(a){
+      if (id) {
+        try {
+          var u = new URL(a.href);
+          u.searchParams.set('trackingkey', id);
+          a.href = u.toString();
+        } catch(e){}
+      }
+      a.addEventListener('click', function(){
+        if (!ADS_LABEL) return;
+        try { gtag('event', 'conversion', { send_to: ADS_ID + '/' + ADS_LABEL }); } catch(e){}
+      });
+    });
+  } catch(e){}
 })();
 </script>
 
