@@ -1079,7 +1079,7 @@
       head:"Five extracts, each at its full standardized dose",
       body:"Most nerve formulas stretch a long ingredient list across a small dose. Nerve Fresh does the opposite: five bio-available fruit, flower and bark extracts, each delivered at its full standardized dose and paired with essential vitamin and mineral support — selected for their studied role in maintaining healthy nerve function.<sup>&dagger;</sup>",
       shot:"Photo — bottle + five extracts",
-      img:"",
+      img:"assets/hero-bottles.png",
       chipsLabel:"The five extracts inside",
       chips:[["01","Prickly Pear"],["02","Passionflower"],["03","Marshmallow Root"],["04","Corydalis"],["05","California Poppy"]],
       quote:"&ldquo;I started using Nerve Fresh because it was recommended to me by a nurse who understood my issue. After 2 months of using it I feel a lot more better and I don&rsquo;t feel the pain and tingling as before.&rdquo;",
@@ -1089,7 +1089,7 @@
       head:"For hands and feet that feel raw by the end of the day",
       body:"Prickly pear is rich in antioxidant compounds and marshmallow root carries a soothing mucilage — both traditionally used to help the body manage the oxidative stress that accumulates in cells, tissue and muscle over the years.<sup>&dagger;</sup>",
       shot:"Photo — hands, warm daylight",
-      img:"",
+      img:"assets/pack-single.png",
       chipsLabel:"Driven by",
       chips:[["01","Prickly Pear"],["03","Marshmallow Root"]],
       quote:"&ldquo;I&rsquo;m a musician, but my neuropathy made it challenging to play. Since I started taking Nerve Fresh, I&rsquo;ve noticed a significant improvement in my hand and finger dexterity, flexibility, and sensitivity.&rdquo;",
@@ -1099,7 +1099,7 @@
       head:"Winding down shouldn&rsquo;t depend on how the day went",
       body:"Passionflower is a well-known herbal agent studied for its calming effect and its association with GABA activity in the brain. California poppy has been used for generations as a gentle evening relaxant. Both are in every capsule — not sold as a separate night-time add-on.<sup>&dagger;</sup>",
       shot:"Photo — bedside, evening light",
-      img:"",
+      img:"assets/pack-6.png",
       chipsLabel:"Driven by",
       chips:[["02","Passionflower"],["05","California Poppy"]],
       rating:true
@@ -1108,7 +1108,7 @@
       head:"Two capsules a day, and 180 days to decide",
       body:"One capsule twice a day, 20–30 minutes before a meal with a glass of water. The makers recommend a minimum of 3 to 6 months for the full benefit of the formula — so every order ships free and is covered for a full 180 days, even if the bottles come back empty.<sup>&dagger;</sup>",
       shot:"Photo — daily routine, glass of water",
-      img:"",
+      img:"assets/hero-bottles.png",
       chipsLabel:"Also inside",
       chips:[["04","Corydalis (Yanhusuo)"],["+","Vitamin &amp; mineral support"]],
       quote:"&ldquo;After suffering from neuropathy for years, I had given up on going for long walks. Now I can enjoy long walks with my dog and stand for hours without feeling fatigued.&rdquo;",
@@ -1140,8 +1140,17 @@
     tabs.forEach(function(t,k){ t.setAttribute('aria-selected', k===i ? 'true' : 'false'); });
 
     label.innerHTML = d.shot;
-    if(d.img){ shot.style.backgroundImage = 'url('+d.img+')'; label.style.display='none'; }
-    else { shot.style.backgroundImage = ''; label.style.display=''; }
+    if(d.img){
+      shot.style.backgroundImage = 'url('+d.img+')';
+      shot.style.backgroundSize = 'contain';
+      shot.style.backgroundRepeat = 'no-repeat';
+      label.style.display='none';
+    } else {
+      shot.style.backgroundImage = '';
+      shot.style.backgroundSize = '';
+      shot.style.backgroundRepeat = '';
+      label.style.display='';
+    }
 
     eyebrow.innerHTML = 'Benefit ' + pad(i+1) + ' of ' + pad(DATA.length);
     head.innerHTML  = d.head;
