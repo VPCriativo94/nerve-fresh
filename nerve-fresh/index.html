@@ -212,8 +212,7 @@
   .btab-bar{display:block;height:100%;width:0;background:var(--amber)}
 
   .btabs-cta{margin-top:auto;padding:16px;border-top:1px solid var(--line)}
-  .btabs-cta p{margin:0 0 12px;font-size:13.5px;font-weight:600;color:var(--ink-soft);text-wrap:pretty}
-  .btabs-cta .btn{font-size:15px;padding:12px 20px}
+  .btabs-cta p{margin:0;font-size:13.5px;font-weight:600;color:var(--ink-soft);text-wrap:pretty}
 
   .bpanel{flex:3 1 420px;min-width:0;padding:26px 22px 28px;display:flex;flex-direction:column;gap:20px;touch-action:pan-y}
   .bshot{
@@ -449,17 +448,6 @@
   footer .disclaimer{border-top:1px solid rgba(255,255,255,.1);padding-top:20px;margin-top:20px;line-height:1.7}
   footer strong{color:#bcd8de}
 
-  /* ---------- sticky mobile cta ---------- */
-  .sticky{
-    position:fixed;left:0;right:0;bottom:0;z-index:60;
-    background:rgba(255,255,255,.97);border-top:1px solid var(--line);
-    padding:10px 16px calc(10px + env(safe-area-inset-bottom));box-shadow:0 -4px 20px rgba(13,43,51,.1);
-    backdrop-filter:blur(6px);
-    transform:translateY(110%);transition:transform var(--t-slow) var(--ease-out);
-  }
-  .sticky.show{transform:none}
-  .sticky .btn{width:100%}
-  body{padding-bottom:74px}
   @media (hover:none){
     .btn:active,.plan:active,.ing:active,.bene:active,.rev:active,summary:active,nav a:active{
       transform:scale(.97);transition-duration:var(--t-fast);
@@ -483,8 +471,6 @@
     nav{display:flex}
     .price-grid{grid-template-columns:repeat(3,1fr);gap:26px}
     .plan.best,.plan:nth-child(1),.plan:nth-child(3){order:0}
-    .sticky{display:none}
-    body{padding-bottom:0}
   }
 
   /* ---------- scroll reveal ---------- */
@@ -544,7 +530,6 @@
         <h1>Daily support for <em>tingling, burning and numb</em> feet and hands</h1>
         <p class="lead">Nerve Fresh brings together five bio-available fruit, flower and bark extracts with essential vitamin and mineral support — formulated to help maintain healthy nerve function.<sup>†</sup> One capsule, twice a day.</p>
         <div class="hero-cta">
-          <a class="btn btn-pulse" href="#packages" data-magnetic>See Package Options</a>
           <a class="btn btn-ghost" href="#formula">What's Inside</a>
         </div>
         <p class="hero-note">Free shipping · 180-day money-back guarantee · Made in a GMP-certified, FDA-registered U.S. facility</p>
@@ -597,7 +582,6 @@
 
             <div class="btabs-cta">
               <p>Every package ships free and is covered for 180 days.</p>
-              <a class="btn btn-block" href="#packages">See Package Options</a>
             </div>
           </div>
 
@@ -911,10 +895,6 @@
   </div>
 </footer>
 
-<div class="sticky" id="stickyBar">
-  <a class="btn" href="#packages">See Package Options →</a>
-</div>
-
 <script>
 (function(){
   /* failsafe: se o bloco de interacao lancar um erro em qualquer ponto,
@@ -962,11 +942,9 @@
     document.querySelectorAll('.reveal').forEach(function(el){ el.classList.add('in'); });
   }
 
-  /* ---------- header condensed + progress bar + sticky bar (one scroll listener) ---------- */
+  /* ---------- header condensed + progress bar (one scroll listener) ---------- */
   var hdr = document.querySelector('header');
   var progress = document.getElementById('progress');
-  var stickyBar = document.getElementById('stickyBar');
-  var hero = document.querySelector('.hero');
   var ticking = false;
 
   function onScroll(){
@@ -976,9 +954,6 @@
       var doc = document.documentElement;
       var max = (doc.scrollHeight - doc.clientHeight) || 1;
       progress.style.width = Math.min(100, (y/max*100)) + '%';
-    }
-    if(stickyBar && hero){
-      stickyBar.classList.toggle('show', y > hero.offsetHeight * 0.6);
     }
     ticking = false;
   }
