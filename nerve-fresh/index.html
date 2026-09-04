@@ -23,6 +23,18 @@
     --shadow:0 4px 24px rgba(13,43,51,.08);
     --shadow-lg:0 12px 40px rgba(13,43,51,.14);
     --radius:16px;
+
+    /* ---- motion system ---- */
+    --t-fast:140ms;
+    --t-base:240ms;
+    --t-slow:520ms;
+    --t-slower:900ms;
+    --ease-out:cubic-bezier(.2,.8,.25,1);
+    --ease-in-out:cubic-bezier(.65,.05,.36,1);
+    --ease-spring:cubic-bezier(.34,1.4,.64,1);
+    --shadow-hover:0 10px 30px rgba(13,43,51,.12);
+    --shadow-press:0 2px 8px rgba(13,43,51,.10);
+    --ring:0 0 0 3px rgba(14,90,104,.22);
   }
   *{box-sizing:border-box}
   html{scroll-behavior:smooth;overflow-x:hidden}
@@ -51,26 +63,73 @@
   header{
     background:#fff;border-bottom:1px solid var(--line);
     position:sticky;top:0;z-index:50;
+    transition:padding var(--t-base) var(--ease-out),background-color var(--t-base),
+               box-shadow var(--t-base),backdrop-filter var(--t-base);
+  }
+  header.condensed{
+    background:rgba(255,255,255,.82);
+    backdrop-filter:saturate(180%) blur(14px);
+    box-shadow:0 2px 20px rgba(13,43,51,.08);
+  }
+  header.condensed .header-in{padding-top:8px;padding-bottom:8px}
+  header.condensed .logo img{width:140px}
+  .progress{
+    position:fixed;top:0;left:0;height:2px;z-index:70;
+    background:linear-gradient(90deg,var(--teal),var(--amber));
+    width:0;transform-origin:0 50%;transition:width 90ms linear;
   }
   .header-in{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 20px;max-width:1120px;margin:0 auto}
-  .logo img{width:168px}
+  .logo img{width:168px;transition:width var(--t-base) var(--ease-out)}
   nav{display:none;gap:28px;font-weight:600;font-size:15px}
-  nav a{text-decoration:none;color:var(--ink-soft)}
-  nav a:hover{color:var(--teal)}
+  nav a{text-decoration:none;color:var(--ink-soft);position:relative;transition:color var(--t-base)}
+  nav a::after{
+    content:'';position:absolute;left:0;right:0;bottom:-6px;height:2px;
+    background:var(--teal);border-radius:2px;transform:scaleX(0);transform-origin:left;
+    transition:transform var(--t-base) var(--ease-out);
+  }
+  nav a[aria-current="true"]{color:var(--teal)}
+  nav a[aria-current="true"]::after{transform:scaleX(1)}
+  @media (hover:hover) and (pointer:fine){
+    nav a:hover{color:var(--teal)}
+    nav a:hover::after{transform:scaleX(1)}
+  }
+  section[id],div[id]{scroll-margin-top:84px}
   .btn{
     display:inline-block;border:0;cursor:pointer;text-decoration:none;
     background:var(--amber);color:#2b1a00;
     font-weight:800;font-size:16px;letter-spacing:.01em;
     padding:14px 28px;border-radius:999px;
     box-shadow:0 4px 14px rgba(246,167,35,.35);
-    transition:transform .15s ease, box-shadow .15s ease, background .15s ease;
     text-align:center;
+    position:relative;overflow:hidden;isolation:isolate;
+    -webkit-tap-highlight-color:transparent;-webkit-touch-callout:none;
+    transition:transform var(--t-base) var(--ease-spring),
+               box-shadow var(--t-base) var(--ease-out),
+               background-color var(--t-base) var(--ease-out);
   }
-  .btn:hover{background:var(--amber-dark);transform:translateY(-1px);box-shadow:0 6px 18px rgba(246,167,35,.45)}
+  .btn::after{
+    content:'';position:absolute;inset:0;z-index:-1;
+    background:linear-gradient(105deg,transparent 30%,rgba(255,255,255,.55) 48%,transparent 66%);
+    transform:translateX(-120%);
+    transition:transform 620ms var(--ease-out);
+  }
+  .btn:active{transform:translateY(0) scale(.97);box-shadow:var(--shadow-press);transition-duration:var(--t-fast)}
+  .btn:focus-visible{outline:none;box-shadow:var(--ring),0 6px 18px rgba(246,167,35,.35)}
+  @media (hover:hover) and (pointer:fine){
+    .btn:hover{background:var(--amber-dark);transform:translateY(-2px) scale(1.015);box-shadow:0 8px 22px rgba(246,167,35,.45)}
+    .btn:hover::after{transform:translateX(120%)}
+  }
   .btn-sm{padding:10px 20px;font-size:14px}
   .btn-block{display:block;width:100%}
   .btn-ghost{background:transparent;color:var(--teal);border:2px solid var(--teal);box-shadow:none}
-  .btn-ghost:hover{background:var(--teal);color:#fff}
+  @media (hover:hover) and (pointer:fine){ .btn-ghost:hover{background:var(--teal);color:#fff} }
+
+  @keyframes breathe{
+    0%,100%{box-shadow:0 4px 14px rgba(246,167,35,.35)}
+    50%{box-shadow:0 6px 26px rgba(246,167,35,.55)}
+  }
+  .btn-pulse{animation:breathe 3.4s var(--ease-in-out) infinite}
+  @media (hover:hover) and (pointer:fine){ .btn-pulse:hover{animation-play-state:paused} }
 
   /* ---------- hero ---------- */
   .hero{background:linear-gradient(160deg,#f4fbfc 0%,#e9f4f6 60%,#dfeef1 100%);padding:44px 0 52px;overflow:hidden}
@@ -84,10 +143,21 @@
   }
   h1 em{font-style:normal;color:var(--teal)}
   .lead{font-size:clamp(16px,2.2vw,19px);color:var(--ink-soft);margin:0 0 26px;max-width:56ch}
-  .hero-cta{display:flex;flex-wrap:wrap;gap:14px;align-items:center}
+  .hero-cta{display:flex;flex-wrap:wrap;gap:14px;align-items:center;perspective:600px}
+  .hero-cta .btn{transform-style:preserve-3d}
   .hero-note{font-size:13px;color:var(--ink-soft);margin-top:14px;font-weight:600}
   .hero-img{position:relative;text-align:center;min-width:0}
-  .hero-img img{margin:0 auto;width:100%;max-width:440px;height:auto}
+  .hero-img img{margin:0 auto;width:100%;max-width:440px;height:auto;animation:heroFloat 6s var(--ease-in-out) infinite}
+
+  @keyframes heroIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+  @keyframes heroFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+  .hero h1,.hero .lead,.hero .hero-cta,.hero .hero-note{animation:heroIn var(--t-slower) var(--ease-out) both}
+  .hero .lead{animation-delay:90ms}
+  .hero .hero-cta{animation-delay:170ms}
+  .hero .hero-note{animation-delay:240ms}
+  .rating-line .stars span{display:inline-block;animation:starIn var(--t-base) var(--ease-spring) both}
+  @keyframes starIn{from{opacity:0;transform:scale(.6)}to{opacity:1;transform:scale(1)}}
+  .brand-count{font-variant-numeric:tabular-nums}
 
   /* ---------- trust strip ---------- */
   .trust{background:#fff;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:22px 0}
@@ -108,26 +178,129 @@
   .center{text-align:center}
   .center .sec-intro{margin-left:auto;margin-right:auto}
 
-  /* ---------- benefits ---------- */
+  /* ---------- benefits slider ---------- */
   .benefits{background:#fff}
-  .bene-grid{display:grid;gap:18px;grid-template-columns:1fr}
-  .bene{
-    background:var(--bg);border:1px solid var(--line);border-radius:var(--radius);
-    padding:24px 22px;
+  .bslider{
+    background:var(--bg);border:1px solid var(--line);border-radius:20px;
+    box-shadow:var(--shadow);overflow:hidden;outline:none;
   }
-  .bene .ico{
-    width:42px;height:42px;border-radius:12px;background:var(--teal-light);
-    display:flex;align-items:center;justify-content:center;font-size:21px;margin-bottom:14px;
+  .bslider-in{display:flex;flex-wrap:wrap;align-items:stretch}
+
+  .btabs{
+    flex:1 1 300px;background:#fff;border-bottom:1px solid var(--line);
+    padding:14px;display:flex;flex-direction:column;gap:4px;
   }
-  .bene p{margin:0;color:var(--ink-soft);font-size:15px}
+  .btab{
+    position:relative;display:block;width:100%;text-align:left;border:0;cursor:pointer;
+    font-family:inherit;padding:15px 16px 17px;border-radius:14px;background:transparent;
+    transition:background var(--t-base) var(--ease-out);-webkit-tap-highlight-color:transparent;
+  }
+  @media (hover:hover) and (pointer:fine){ .btab:hover{background:#f2f8f9} }
+  .btab[aria-selected="true"]{background:var(--teal-light)}
+  .btab:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(14,90,104,.25)}
+  .btab:active{transform:scale(.98);transition-duration:var(--t-fast)}
+  .btab-row{display:flex;align-items:center;gap:12px}
+  .btab-num{
+    flex:0 0 auto;width:28px;height:28px;border-radius:9px;display:flex;align-items:center;justify-content:center;
+    font-size:12px;font-weight:800;background:var(--teal-light);color:var(--teal);
+    transition:background var(--t-base) var(--ease-out),color var(--t-base) var(--ease-out);
+  }
+  .btab[aria-selected="true"] .btab-num{background:var(--teal);color:#fff}
+  .btab-title{font-size:16px;font-weight:800;letter-spacing:-.01em;line-height:1.3;color:var(--ink-soft);transition:color var(--t-base) var(--ease-out)}
+  .btab[aria-selected="true"] .btab-title{color:var(--teal-deep)}
+  .btab-track{display:block;height:2px;border-radius:2px;background:var(--line);margin:12px 0 0 40px;overflow:hidden}
+  .btab-bar{display:block;height:100%;width:0;background:var(--amber)}
+
+  .btabs-cta{margin-top:auto;padding:16px;border-top:1px solid var(--line)}
+  .btabs-cta p{margin:0 0 12px;font-size:13.5px;font-weight:600;color:var(--ink-soft);text-wrap:pretty}
+  .btabs-cta .btn{font-size:15px;padding:12px 20px}
+
+  .bpanel{flex:3 1 420px;min-width:0;padding:26px 22px 28px;display:flex;flex-direction:column;gap:20px;touch-action:pan-y}
+  .bshot{
+    height:180px;border-radius:14px;border:1px solid var(--line);
+    background-color:#eef5f6;
+    background-image:repeating-linear-gradient(135deg,rgba(14,90,104,.09) 0 8px,rgba(14,90,104,0) 8px 16px);
+    background-size:cover;background-position:center;
+    display:flex;align-items:flex-end;padding:14px;
+  }
+  .bshot span{
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;letter-spacing:.06em;
+    text-transform:uppercase;color:var(--ink-soft);background:rgba(255,255,255,.9);
+    border:1px solid var(--line);border-radius:6px;padding:5px 9px;
+  }
+  .beyebrow{font-size:12px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--teal);margin-bottom:10px}
+  .bpanel h3{font-size:clamp(22px,2.6vw,28px);font-weight:800;letter-spacing:-.015em;line-height:1.25;margin:0 0 12px}
+  .bbody{margin:0;color:var(--ink-soft);font-size:16.5px;text-wrap:pretty;max-width:60ch}
+  .bchips-label{font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:9px}
+  .bchips{display:flex;flex-wrap:wrap;gap:8px}
+  .bchip{
+    display:inline-flex;align-items:center;gap:8px;text-decoration:none;background:#fff;
+    border:1px solid var(--line);border-radius:999px;padding:7px 14px 7px 10px;
+    font-size:13.5px;font-weight:700;color:var(--ink);
+    transition:border-color var(--t-base) var(--ease-out),box-shadow var(--t-base) var(--ease-out),transform var(--t-fast);
+  }
+  @media (hover:hover) and (pointer:fine){ .bchip:hover{border-color:var(--teal);box-shadow:0 2px 10px rgba(13,43,51,.08)} }
+  .bchip:active{transform:scale(.97)}
+  .bchip b{font-size:10.5px;font-weight:800;letter-spacing:.06em;color:var(--teal);background:var(--teal-light);border-radius:999px;padding:3px 7px}
+  .bproof{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px 20px;margin:0}
+  .bproof .stars{color:var(--amber);font-size:15px;letter-spacing:2px;margin-bottom:8px}
+  .bproof blockquote{margin:0 0 10px;font-size:15px;line-height:1.7;color:var(--ink);text-wrap:pretty}
+  .bproof figcaption{font-size:13px;font-weight:800;color:var(--teal)}
+  .bproof figcaption span{font-weight:600;color:var(--ink-soft)}
+  .brating{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+  .brating .score{font-size:34px;font-weight:800;letter-spacing:-.02em;color:var(--teal);line-height:1;font-variant-numeric:tabular-nums}
+  .brating small{display:block;font-size:13.5px;font-weight:700;color:var(--ink-soft)}
+  .bnav{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-top:auto;padding-top:4px}
+  .bcount{font-size:13px;font-weight:700;color:var(--ink-soft);font-variant-numeric:tabular-nums}
+  .barrows{display:flex;gap:8px}
+  .barrow{
+    width:38px;height:38px;border-radius:999px;border:1px solid var(--line);background:#fff;color:var(--teal);
+    font-size:16px;font-weight:800;cursor:pointer;font-family:inherit;line-height:1;
+    transition:border-color var(--t-base) var(--ease-out),background var(--t-base) var(--ease-out),transform var(--t-fast);
+    -webkit-tap-highlight-color:transparent;
+  }
+  @media (hover:hover) and (pointer:fine){ .barrow:hover{border-color:var(--teal);background:var(--teal-light)} }
+  .barrow:active{transform:scale(.94)}
+  .barrow:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(14,90,104,.25)}
+
+  .bseals{
+    border-top:1px solid var(--line);background:#fff;padding:15px 20px;
+    display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;justify-content:center;
+    font-size:12px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-soft);
+  }
+  .bseals i{color:var(--line);font-style:normal}
+  .bnote{margin:18px 0 0;font-size:12.5px;color:var(--ink-soft);text-align:center}
+
+  .bfade{animation:bfade .38s var(--ease-out) both}
+  @keyframes bfade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+  @media (min-width:860px){
+    .btabs{border-bottom:0;border-right:1px solid var(--line)}
+    .bpanel{padding:26px 28px 28px}
+    .bseals{padding:15px 24px;gap:10px 26px}
+  }
 
   /* ---------- ingredients ---------- */
   .ing-list{display:grid;gap:20px;grid-template-columns:1fr}
   .ing{
     background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
     padding:22px;box-shadow:var(--shadow);display:flex;gap:18px;align-items:flex-start;
+    position:relative;overflow:hidden;
+    transition:transform var(--t-base) var(--ease-out),box-shadow var(--t-base) var(--ease-out),border-color var(--t-base) var(--ease-out);
   }
-  .ing img{width:76px;min-width:76px;border-radius:12px}
+  .ing::before{
+    content:'';position:absolute;inset:0;pointer-events:none;
+    background:radial-gradient(420px circle at var(--mx,50%) var(--my,50%),rgba(14,90,104,.10),transparent 62%);
+    opacity:0;transition:opacity var(--t-base) var(--ease-out);
+  }
+  @media (hover:hover) and (pointer:fine){
+    .ing:hover{transform:translateY(-4px);box-shadow:var(--shadow-hover);border-color:#cfe0e4}
+    .ing:hover::before{opacity:1}
+  }
+  .ing img{width:76px;min-width:76px;border-radius:12px;transition:transform var(--t-slow) var(--ease-out),filter var(--t-base)}
+  @media (hover:hover) and (pointer:fine){
+    .ing:hover img{transform:scale(1.07) rotate(-1.5deg);filter:saturate(1.12)}
+  }
   .ing-icon{
     width:76px;min-width:76px;height:76px;border-radius:12px;background:var(--teal-light);
     display:flex;align-items:center;justify-content:center;font-size:34px;
@@ -150,6 +323,10 @@
   .rev{
     background:var(--bg);border:1px solid var(--line);border-radius:var(--radius);padding:24px;
     display:flex;flex-direction:column;
+    transition:transform var(--t-base) var(--ease-out),box-shadow var(--t-base) var(--ease-out),border-color var(--t-base) var(--ease-out);
+  }
+  @media (hover:hover) and (pointer:fine){
+    .rev:hover{transform:translateY(-4px);box-shadow:var(--shadow-hover);border-color:#cfe0e4}
   }
   .rev .stars{margin-bottom:10px}
   .rev blockquote{margin:0 0 16px;font-size:15px;color:var(--ink);line-height:1.7}
@@ -166,18 +343,52 @@
   .plan{
     background:#fff;border:2px solid var(--line);border-radius:20px;padding:26px 22px 24px;
     box-shadow:var(--shadow);display:flex;flex-direction:column;text-align:center;position:relative;
+    overflow:hidden;
+    transition:transform var(--t-base) var(--ease-out),box-shadow var(--t-base) var(--ease-out),
+               border-color var(--t-base) var(--ease-out),opacity var(--t-base) var(--ease-out);
+  }
+  .plan::before{
+    content:'';position:absolute;inset:0;pointer-events:none;border-radius:inherit;
+    background:radial-gradient(420px circle at var(--mx,50%) var(--my,50%),rgba(14,90,104,.08),transparent 62%);
+    opacity:0;transition:opacity var(--t-base) var(--ease-out);
+  }
+  .plan::after{
+    content:'';position:absolute;inset:-1px;border-radius:inherit;padding:1px;pointer-events:none;
+    background:linear-gradient(135deg,var(--teal),var(--amber));
+    -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+    -webkit-mask-composite:xor;mask-composite:exclude;
+    opacity:0;transition:opacity var(--t-base) var(--ease-out);
+  }
+  @media (hover:hover) and (pointer:fine){
+    .plan:hover{transform:translateY(-6px);box-shadow:var(--shadow-lg)}
+    .plan:hover::before{opacity:1}
+    .plan:hover::after{opacity:.85}
+    .plan.best:hover{transform:translateY(-8px) scale(1.012)}
+    .price-grid:hover .plan{opacity:.72;transform:scale(.985)}
+    .price-grid:hover .plan:hover{opacity:1;transform:translateY(-6px)}
+    .price-grid:hover .plan.best:hover{transform:translateY(-8px) scale(1.012)}
   }
   .plan.best{border-color:var(--amber);box-shadow:var(--shadow-lg);}
   .badge{
     position:absolute;top:-14px;left:50%;transform:translateX(-50%);
     background:var(--amber);color:#2b1a00;font-size:12px;font-weight:800;
     letter-spacing:.08em;text-transform:uppercase;padding:6px 16px;border-radius:999px;white-space:nowrap;
+    overflow:hidden;
   }
+  .badge::after{
+    content:'';position:absolute;inset:0;
+    background:linear-gradient(105deg,transparent 30%,rgba(255,255,255,.7) 48%,transparent 66%);
+    transform:translateX(-120%);
+    animation:badgeSheen 4.5s var(--ease-out) infinite;
+  }
+  @keyframes badgeSheen{0%,60%{transform:translateX(-120%)}100%{transform:translateX(120%)}}
   .plan .qty{font-size:26px;font-weight:800;letter-spacing:-.01em;margin:6px 0 2px}
   .plan .supply{font-size:14px;color:var(--ink-soft);font-weight:600;margin-bottom:14px}
   .plan .shot{height:170px;display:flex;align-items:center;justify-content:center;margin-bottom:14px}
-  .plan .shot img{max-height:170px;width:auto;max-width:100%}
-  .plan .per{font-size:44px;font-weight:800;color:var(--teal);line-height:1;letter-spacing:-.02em}
+  .plan .shot img{max-height:170px;width:auto;max-width:100%;transition:transform var(--t-slow) var(--ease-out)}
+  @media (hover:hover) and (pointer:fine){ .plan:hover .shot img{transform:scale(1.05)} }
+  .plan .per{font-size:44px;font-weight:800;color:var(--teal);line-height:1;letter-spacing:-.02em;font-variant-numeric:tabular-nums;transition:transform var(--t-base) var(--ease-out)}
+  @media (hover:hover) and (pointer:fine){ .plan:hover .per{transform:scale(1.04)} }
   .plan .per sup{font-size:22px;top:-14px;position:relative}
   .plan .per-label{font-size:13px;color:var(--ink-soft);font-weight:700;margin-bottom:12px}
   .plan .total{font-size:15px;font-weight:700;margin-bottom:16px}
@@ -190,9 +401,15 @@
   /* ---------- guarantee ---------- */
   .guar{background:#fff}
   .guar-box{
-    display:grid;gap:26px;align-items:center;
+    display:grid;gap:26px;align-items:center;position:relative;overflow:hidden;
     background:var(--teal-light);border:1px solid #cfe4e8;border-radius:20px;padding:30px 26px;
   }
+  .guar-box::before{
+    content:'';position:absolute;inset:0;pointer-events:none;
+    background:radial-gradient(420px circle at var(--mx,50%) var(--my,50%),rgba(255,255,255,.5),transparent 62%);
+    opacity:0;transition:opacity var(--t-base) var(--ease-out);
+  }
+  @media (hover:hover) and (pointer:fine){ .guar-box:hover::before{opacity:1} }
   .guar-box img{width:150px;margin:0 auto}
   .guar-box p{margin:0 0 12px;color:var(--ink-soft);font-size:16px}
 
@@ -201,17 +418,25 @@
   details{
     background:#fff;border:1px solid var(--line);border-radius:14px;
     padding:0;margin-bottom:12px;overflow:hidden;
+    transition:box-shadow var(--t-base) var(--ease-out),border-color var(--t-base) var(--ease-out);
   }
+  details[open]{box-shadow:var(--shadow);border-color:#cfe0e4}
   summary{
     cursor:pointer;list-style:none;padding:18px 52px 18px 20px;
     font-weight:700;font-size:16px;position:relative;
+    transition:background-color var(--t-fast);-webkit-tap-highlight-color:transparent;
   }
+  @media (hover:hover) and (pointer:fine){ summary:hover{background:#f7fbfc} }
   summary::-webkit-details-marker{display:none}
   summary::after{
     content:"+";position:absolute;right:20px;top:50%;transform:translateY(-50%);
     font-size:24px;font-weight:700;color:var(--teal);line-height:1;
+    transition:transform var(--t-base) var(--ease-spring);
   }
-  details[open] summary::after{content:"–"}
+  details[open] summary::after{transform:translateY(-50%) rotate(135deg)}
+  details .body{display:grid;grid-template-rows:0fr;transition:grid-template-rows var(--t-base) var(--ease-out)}
+  details[open] .body{grid-template-rows:1fr}
+  details .body>div{overflow:hidden}
   details p{margin:0;padding:0 20px 20px;color:var(--ink-soft);font-size:15px}
 
   /* ---------- final cta ---------- */
@@ -228,11 +453,18 @@
   .sticky{
     position:fixed;left:0;right:0;bottom:0;z-index:60;
     background:rgba(255,255,255,.97);border-top:1px solid var(--line);
-    padding:10px 16px;box-shadow:0 -4px 20px rgba(13,43,51,.1);
+    padding:10px 16px calc(10px + env(safe-area-inset-bottom));box-shadow:0 -4px 20px rgba(13,43,51,.1);
     backdrop-filter:blur(6px);
+    transform:translateY(110%);transition:transform var(--t-slow) var(--ease-out);
   }
+  .sticky.show{transform:none}
   .sticky .btn{width:100%}
   body{padding-bottom:74px}
+  @media (hover:none){
+    .btn:active,.plan:active,.ing:active,.bene:active,.rev:active,summary:active,nav a:active{
+      transform:scale(.97);transition-duration:var(--t-fast);
+    }
+  }
 
   /* ---------- responsive ---------- */
   @media (min-width:720px){
@@ -254,9 +486,31 @@
     .sticky{display:none}
     body{padding-bottom:0}
   }
+
+  /* ---------- scroll reveal ---------- */
+  .reveal{
+    opacity:0;transform:translateY(18px);
+    transition:opacity var(--t-slow) var(--ease-out),transform var(--t-slow) var(--ease-out);
+    transition-delay:var(--d,0ms);
+    will-change:opacity,transform;
+  }
+  .reveal.in{opacity:1;transform:none;will-change:auto}
+
+  /* ---------- reduced motion ---------- */
+  @media (prefers-reduced-motion:reduce){
+    *,*::before,*::after{
+      animation-duration:.01ms !important;
+      animation-iteration-count:1 !important;
+      transition-duration:.01ms !important;
+      scroll-behavior:auto !important;
+    }
+    .reveal{opacity:1 !important;transform:none !important}
+  }
 </style>
 </head>
 <body>
+
+<div class="progress" id="progress"></div>
 
 <div class="topbar">
   <span>🚚 Free shipping on all orders</span>
@@ -283,13 +537,13 @@
     <div class="wrap hero-grid">
       <div>
         <div class="rating-line">
-          <span class="stars">★★★★★</span>
-          <span>4.9 / 5 — from 3,776 reviews on the official site</span>
+          <span class="stars" aria-label="5 out of 5 stars"><span style="animation-delay:0ms">★</span><span style="animation-delay:70ms">★</span><span style="animation-delay:140ms">★</span><span style="animation-delay:210ms">★</span><span style="animation-delay:280ms">★</span></span>
+          <span><b class="brand-count" id="ratingScore">4.9</b> / 5 — from <b class="brand-count" id="ratingCount">3,776</b> reviews on the official site</span>
         </div>
         <h1>Daily support for <em>tingling, burning and numb</em> feet and hands</h1>
         <p class="lead">Nerve Fresh brings together five bio-available fruit, flower and bark extracts with essential vitamin and mineral support — formulated to help maintain healthy nerve function.<sup>†</sup> One capsule, twice a day.</p>
         <div class="hero-cta">
-          <a class="btn" href="#packages">See Package Options</a>
+          <a class="btn btn-pulse" href="#packages" data-magnetic>See Package Options</a>
           <a class="btn btn-ghost" href="#formula">What's Inside</a>
         </div>
         <p class="hero-note">Free shipping · 180-day money-back guarantee · Made in a GMP-certified, FDA-registered U.S. facility</p>
@@ -302,7 +556,7 @@
 
   <!-- TRUST -->
   <div class="trust">
-    <div class="wrap trust-grid">
+    <div class="wrap trust-grid reveal-group">
       <div class="trust-item"><b>🌱</b>All Natural &amp; Non-GMO</div>
       <div class="trust-item"><b>🇺🇸</b>Made in the USA</div>
       <div class="trust-item"><b>🏭</b>GMP Certified</div>
@@ -314,32 +568,74 @@
   <section class="benefits" id="benefits">
     <div class="wrap">
       <div class="center">
-        <span class="sec-label">Why people take it</span>
-        <h2>Made for the small things you stopped doing</h2>
-        <p class="sec-intro">Nerve Fresh was formulated to support your body's own nerve health — so the everyday moments feel a little easier again.<sup>†</sup></p>
+        <span class="sec-label reveal">Why people take it</span>
+        <h2 class="reveal" style="--d:80ms">Made for the small things you stopped doing</h2>
+        <p class="sec-intro reveal" style="--d:160ms">Four reasons people stay on Nerve Fresh — and the exact extracts behind each one.<sup>†</sup></p>
       </div>
-      <div class="bene-grid">
-        <div class="bene">
-          <div class="ico">🦶</div>
-          <h3>Healthy nerve function</h3>
-          <p>Five standardized botanical extracts, paired with vitamin and mineral support, chosen for their role in maintaining healthy nerves.<sup>†</sup></p>
+
+      <div class="bslider" id="bslider" tabindex="0" role="region" aria-label="Benefits">
+        <div class="bslider-in">
+
+          <div class="btabs" role="tablist" aria-label="Choose a benefit">
+            <button class="btab" type="button" role="tab" aria-selected="true" aria-controls="bpanel" data-i="0">
+              <span class="btab-row"><span class="btab-num">01</span><span class="btab-title">Healthy nerve function</span></span>
+              <span class="btab-track"><span class="btab-bar"></span></span>
+            </button>
+            <button class="btab" type="button" role="tab" aria-selected="false" aria-controls="bpanel" data-i="1">
+              <span class="btab-row"><span class="btab-num">02</span><span class="btab-title">Everyday comfort</span></span>
+              <span class="btab-track"><span class="btab-bar"></span></span>
+            </button>
+            <button class="btab" type="button" role="tab" aria-selected="false" aria-controls="bpanel" data-i="2">
+              <span class="btab-row"><span class="btab-num">03</span><span class="btab-title">Calm, restful nights</span></span>
+              <span class="btab-track"><span class="btab-bar"></span></span>
+            </button>
+            <button class="btab" type="button" role="tab" aria-selected="false" aria-controls="bpanel" data-i="3">
+              <span class="btab-row"><span class="btab-num">04</span><span class="btab-title">Built for the long run</span></span>
+              <span class="btab-track"><span class="btab-bar"></span></span>
+            </button>
+
+            <div class="btabs-cta">
+              <p>Every package ships free and is covered for 180 days.</p>
+              <a class="btn btn-block" href="#packages">See Package Options</a>
+            </div>
+          </div>
+
+          <div class="bpanel" id="bpanel" role="tabpanel">
+            <div class="bshot" id="bshot"><span id="bshot-label">Photo — bottle + five extracts</span></div>
+
+            <div>
+              <div class="beyebrow" id="beyebrow">Benefit 01 of 04</div>
+              <h3 id="bhead">Five extracts, each at its full standardized dose</h3>
+              <p class="bbody" id="bbody">Most nerve formulas stretch a long ingredient list across a small dose. Nerve Fresh does the opposite: five bio-available fruit, flower and bark extracts, each delivered at its full standardized dose and paired with essential vitamin and mineral support — selected for their studied role in maintaining healthy nerve function.<sup>†</sup></p>
+            </div>
+
+            <div>
+              <div class="bchips-label" id="bchips-label">The five extracts inside</div>
+              <div class="bchips" id="bchips"></div>
+            </div>
+
+            <div id="bproof"></div>
+
+            <div class="bnav">
+              <span class="bcount" id="bcount">01 / 04</span>
+              <span class="barrows">
+                <button class="barrow" type="button" id="bprev" aria-label="Previous benefit">&lsaquo;</button>
+                <button class="barrow" type="button" id="bnext" aria-label="Next benefit">&rsaquo;</button>
+              </span>
+            </div>
+          </div>
+
         </div>
-        <div class="bene">
-          <div class="ico">😌</div>
-          <h3>Everyday comfort</h3>
-          <p>Formulated to help your body manage the oxidative stress that builds up in cells, tissue and muscle over time.<sup>†</sup></p>
-        </div>
-        <div class="bene">
-          <div class="ico">🌙</div>
-          <h3>More restful sleep</h3>
-          <p>Includes passionflower and California poppy, both traditionally used to support relaxation and quality rest.<sup>†</sup></p>
-        </div>
-        <div class="bene">
-          <div class="ico">⚡</div>
-          <h3>Daily energy support</h3>
-          <p>Designed as a simple daily routine — two capsules a day, taken with water before a meal.<sup>†</sup></p>
+
+        <div class="bseals">
+          <span>All Natural &amp; Non-GMO</span><i>/</i>
+          <span>Made in the USA</span><i>/</i>
+          <span>GMP Certified</span><i>/</i>
+          <span>FDA-Registered Facility</span>
         </div>
       </div>
+
+      <p class="bnote"><sup>†</sup> These statements have not been evaluated by the Food and Drug Administration. This product is not intended to diagnose, treat, cure, or prevent any disease.</p>
     </div>
   </section>
 
@@ -347,11 +643,11 @@
   <section id="formula">
     <div class="wrap">
       <div class="center">
-        <span class="sec-label">The formula</span>
-        <h2>Five plant extracts, at full standardized doses</h2>
-        <p class="sec-intro">Each ingredient was selected for its studied role in supporting nerve health, and delivered at its full standardized dose.<sup>†</sup></p>
+        <span class="sec-label reveal">The formula</span>
+        <h2 class="reveal" style="--d:80ms">Five plant extracts, at full standardized doses</h2>
+        <p class="sec-intro reveal" style="--d:160ms">Each ingredient was selected for its studied role in supporting nerve health, and delivered at its full standardized dose.<sup>†</sup></p>
       </div>
-      <div class="ing-list">
+      <div class="ing-list reveal-group">
         <div class="ing">
           <img src="assets/ing-1-prickly-pear.png" alt="Prickly Pear" width="76" height="76" loading="lazy">
           <div>
@@ -408,10 +704,10 @@
   <section class="howto">
     <div class="wrap">
       <div class="center">
-        <span class="sec-label">Simple routine</span>
-        <h2>How to take Nerve Fresh</h2>
+        <span class="sec-label reveal">Simple routine</span>
+        <h2 class="reveal" style="--d:80ms">How to take Nerve Fresh</h2>
       </div>
-      <div class="steps">
+      <div class="steps reveal-group">
         <div class="step">
           <b>Step 01</b>
           <p>Take one capsule twice a day, 20–30 minutes before a meal, with an 8 oz glass of water.</p>
@@ -432,11 +728,11 @@
   <section class="reviews" id="reviews">
     <div class="wrap">
       <div class="center">
-        <span class="sec-label">Customer reviews</span>
-        <h2>Rated 4.9 out of 5 from 3,776 reviews</h2>
-        <p class="sec-intro">The reviews below are published on the official Nerve Fresh website.</p>
+        <span class="sec-label reveal">Customer reviews</span>
+        <h2 class="reveal" style="--d:80ms">Rated 4.9 out of 5 from 3,776 reviews</h2>
+        <p class="sec-intro reveal" style="--d:160ms">The reviews below are published on the official Nerve Fresh website.</p>
       </div>
-      <div class="rev-grid">
+      <div class="rev-grid reveal-group">
         <div class="rev">
           <span class="stars">★★★★★</span>
           <blockquote>“I started using Nerve Fresh because it was recommended to me by a nurse/therapist who understood my issue. After 2 months of using it I feel a lot more better and I don't feel the pain and tingling as before. I take it 2 times a day and I love it!”</blockquote>
@@ -463,11 +759,11 @@
   <section class="pricing" id="packages">
     <div class="wrap">
       <div class="center">
-        <span class="sec-label">Choose your package</span>
-        <h2>Save more with multi-bottle packages</h2>
-        <p class="sec-intro">Every order ships free and is covered by the same 180-day money-back guarantee.</p>
+        <span class="sec-label reveal">Choose your package</span>
+        <h2 class="reveal" style="--d:80ms">Save more with multi-bottle packages</h2>
+        <p class="sec-intro reveal" style="--d:160ms">Every order ships free and is covered by the same 180-day money-back guarantee.</p>
       </div>
-      <div class="price-grid">
+      <div class="price-grid reveal-group">
 
         <div class="plan">
           <div class="qty">2 Bottles</div>
@@ -499,8 +795,8 @@
             <li>Lowest price per bottle</li>
             <li>Full recommended 6-month routine</li>
           </ul>
-          <div class="cta-wrap">
-            <a class="btn btn-block" href="https://www.digistore24.com/product/575570?aff=StoreHome94" rel="nofollow sponsored">Add To Cart</a>
+          <div class="cta-wrap" style="perspective:600px">
+            <a class="btn btn-block btn-pulse" href="https://www.digistore24.com/product/575570?aff=StoreHome94" rel="nofollow sponsored" data-magnetic style="transform-style:preserve-3d">Add To Cart</a>
           </div>
         </div>
 
@@ -544,49 +840,51 @@
   <section class="faq" id="faq">
     <div class="wrap narrow">
       <div class="center">
-        <span class="sec-label">FAQ</span>
-        <h2>Frequently asked questions</h2>
+        <span class="sec-label reveal">FAQ</span>
+        <h2 class="reveal" style="--d:80ms">Frequently asked questions</h2>
       </div>
 
+      <div class="reveal-group">
       <details open>
         <summary>How should I take Nerve Fresh?</summary>
-        <p>As a dietary supplement, take one (1) capsule twice a day. For best results, take it 20–30 minutes before a meal with an 8 oz glass of water, or as directed by your healthcare professional.</p>
+        <div class="body"><div><p>As a dietary supplement, take one (1) capsule twice a day. For best results, take it 20–30 minutes before a meal with an 8 oz glass of water, or as directed by your healthcare professional.</p></div></div>
       </details>
 
       <details>
         <summary>How long should I take it for?</summary>
-        <p>The makers recommend a minimum of 3 to 6 months to get the full benefit of the formula — which is why the 3-bottle and 6-bottle packages are the most popular options.</p>
+        <div class="body"><div><p>The makers recommend a minimum of 3 to 6 months to get the full benefit of the formula — which is why the 3-bottle and 6-bottle packages are the most popular options.</p></div></div>
       </details>
 
       <details>
         <summary>How many bottles should I order?</summary>
-        <p>If you plan to follow the full recommended routine, the 6-bottle package brings the price down to $39 per bottle and covers the entire 180 days. The 3-bottle package covers the minimum recommended period.</p>
+        <div class="body"><div><p>If you plan to follow the full recommended routine, the 6-bottle package brings the price down to $39 per bottle and covers the entire 180 days. The 3-bottle package covers the minimum recommended period.</p></div></div>
       </details>
 
       <details>
         <summary>Is this a subscription? Are there monthly charges?</summary>
-        <p>No. Each package is a single one-time purchase. There is no subscription and no recurring charge.</p>
+        <div class="body"><div><p>No. Each package is a single one-time purchase. There is no subscription and no recurring charge.</p></div></div>
       </details>
 
       <details>
         <summary>What if it doesn't work for me?</summary>
-        <p>Every order is covered by a 180-day money-back guarantee. If you're not satisfied, contact the customer success team for return instructions — even if the bottles are empty — and you'll be refunded.</p>
+        <div class="body"><div><p>Every order is covered by a 180-day money-back guarantee. If you're not satisfied, contact the customer success team for return instructions — even if the bottles are empty — and you'll be refunded.</p></div></div>
       </details>
 
       <details>
         <summary>Where is it made?</summary>
-        <p>Nerve Fresh is formulated in the United States, in a GMP-certified, FDA-registered facility, and the formula is all natural, non-GMO and gluten-free.</p>
+        <div class="body"><div><p>Nerve Fresh is formulated in the United States, in a GMP-certified, FDA-registered facility, and the formula is all natural, non-GMO and gluten-free.</p></div></div>
       </details>
 
       <details>
         <summary>Is my order secure?</summary>
-        <p>Yes. Checkout is handled by Digistore24 over a secure SSL-encrypted connection. Your payment details are never handled by this page.</p>
+        <div class="body"><div><p>Yes. Checkout is handled by Digistore24 over a secure SSL-encrypted connection. Your payment details are never handled by this page.</p></div></div>
       </details>
 
       <details>
         <summary>Are there any side effects?</summary>
-        <p>Nerve Fresh is a dietary supplement made from natural ingredients. As with any supplement, if you are pregnant, nursing, taking medication or have a medical condition, consult your physician before use.</p>
+        <div class="body"><div><p>Nerve Fresh is a dietary supplement made from natural ingredients. As with any supplement, if you are pregnant, nursing, taking medication or have a medical condition, consult your physician before use.</p></div></div>
       </details>
+      </div>
     </div>
   </section>
 
@@ -612,9 +910,303 @@
   </div>
 </footer>
 
-<div class="sticky">
+<div class="sticky" id="stickyBar">
   <a class="btn" href="#packages">See Package Options →</a>
 </div>
+
+<script>
+(function(){
+  var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var canHover = matchMedia('(hover:hover) and (pointer:fine)').matches;
+
+  /* ---------- scroll reveal ---------- */
+  document.querySelectorAll('.reveal-group').forEach(function(group){
+    [].slice.call(group.children).forEach(function(child,i){
+      child.classList.add('reveal');
+      child.style.setProperty('--d', Math.min(i*70,420)+'ms');
+    });
+  });
+
+  if('IntersectionObserver' in window){
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if(!e.isIntersecting) return;
+        var el = e.target;
+        el.classList.add('in');
+        io.unobserve(el);
+        if(reduce){ el.classList.remove('reveal','in'); return; }
+        var done = function(ev){
+          if(ev.target!==el) return;
+          el.classList.remove('reveal','in');
+          el.style.removeProperty('--d');
+          el.removeEventListener('transitionend', done);
+        };
+        el.addEventListener('transitionend', done);
+      });
+    },{ rootMargin:'0px 0px -12% 0px', threshold:.1 });
+    document.querySelectorAll('.reveal').forEach(function(el){ io.observe(el); });
+  } else {
+    document.querySelectorAll('.reveal').forEach(function(el){ el.classList.add('in'); });
+  }
+
+  /* ---------- header condensed + progress bar + sticky bar (one scroll listener) ---------- */
+  var hdr = document.querySelector('header');
+  var progress = document.getElementById('progress');
+  var stickyBar = document.getElementById('stickyBar');
+  var hero = document.querySelector('.hero');
+  var ticking = false;
+
+  function onScroll(){
+    var y = window.scrollY || document.documentElement.scrollTop;
+    if(hdr) hdr.classList.toggle('condensed', y > 40);
+    if(progress){
+      var doc = document.documentElement;
+      var max = (doc.scrollHeight - doc.clientHeight) || 1;
+      progress.style.width = Math.min(100, (y/max*100)) + '%';
+    }
+    if(stickyBar && hero){
+      stickyBar.classList.toggle('show', y > hero.offsetHeight * 0.6);
+    }
+    ticking = false;
+  }
+  addEventListener('scroll', function(){
+    if(!ticking){ requestAnimationFrame(onScroll); ticking = true; }
+  }, {passive:true});
+  onScroll();
+
+  /* ---------- nav active section ---------- */
+  var navLinks = [].slice.call(document.querySelectorAll('nav a[href^="#"]'));
+  if('IntersectionObserver' in window && navLinks.length){
+    var navMap = {};
+    navLinks.forEach(function(a){
+      var id = a.getAttribute('href').slice(1);
+      var sec = document.getElementById(id);
+      if(sec) navMap[id] = a;
+    });
+    var navIo = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        var link = navMap[e.target.id];
+        if(!link) return;
+        if(e.isIntersecting) link.setAttribute('aria-current','true');
+        else link.removeAttribute('aria-current');
+      });
+    }, { rootMargin:'-40% 0px -50% 0px', threshold:0 });
+    Object.keys(navMap).forEach(function(id){ navIo.observe(document.getElementById(id)); });
+  }
+
+  /* ---------- magnetic buttons ---------- */
+  if(canHover && !reduce){
+    document.querySelectorAll('[data-magnetic]').forEach(function(el){
+      var raf;
+      el.addEventListener('pointermove', function(ev){
+        var r = el.getBoundingClientRect();
+        var dx = (ev.clientX - (r.left + r.width/2)) / r.width;
+        var dy = (ev.clientY - (r.top + r.height/2)) / r.height;
+        cancelAnimationFrame(raf);
+        raf = requestAnimationFrame(function(){
+          el.style.transform = 'translate('+(dx*6)+'px, '+(dy*4)+'px) rotateX('+(-dy*6)+'deg) rotateY('+(dx*8)+'deg)';
+        });
+      });
+      el.addEventListener('pointerleave', function(){ el.style.transform = ''; });
+    });
+  }
+
+  /* ---------- spotlight cursor-follow ---------- */
+  if(canHover){
+    document.querySelectorAll('.ing, .plan, .guar-box').forEach(function(card){
+      card.addEventListener('pointermove', function(ev){
+        var r = card.getBoundingClientRect();
+        card.style.setProperty('--mx', ((ev.clientX-r.left)/r.width*100)+'%');
+        card.style.setProperty('--my', ((ev.clientY-r.top)/r.height*100)+'%');
+      });
+    });
+  }
+
+  /* ---------- rating count-up ---------- */
+  if(!reduce){
+    var scoreEl = document.getElementById('ratingScore');
+    var countEl = document.getElementById('ratingCount');
+    if(scoreEl && countEl){
+      var start = null, dur = 900;
+      function step(ts){
+        if(start===null) start = ts;
+        var p = Math.min(1, (ts-start)/dur);
+        scoreEl.textContent = (p*4.9).toFixed(1);
+        countEl.textContent = new Intl.NumberFormat('en-US').format(Math.round(p*3776));
+        if(p<1) requestAnimationFrame(step);
+        else { scoreEl.textContent='4.9'; countEl.textContent='3,776'; }
+      }
+      requestAnimationFrame(step);
+    }
+  }
+
+  /* ---------- FAQ: exclusive accordion ---------- */
+  var faqItems = [].slice.call(document.querySelectorAll('.faq details'));
+  faqItems.forEach(function(d){
+    d.addEventListener('toggle', function(){
+      if(d.open) faqItems.forEach(function(o){ if(o!==d) o.open = false; });
+    });
+  });
+})();
+</script>
+
+<script>
+/* ---------- benefits slider ---------- */
+(function(){
+  var SLIDE_MS = 4000; /* tempo de cada slide (ms). 0 = desliga o auto-avanço. */
+
+  var DATA = [
+    {
+      head:"Five extracts, each at its full standardized dose",
+      body:"Most nerve formulas stretch a long ingredient list across a small dose. Nerve Fresh does the opposite: five bio-available fruit, flower and bark extracts, each delivered at its full standardized dose and paired with essential vitamin and mineral support — selected for their studied role in maintaining healthy nerve function.<sup>&dagger;</sup>",
+      shot:"Photo — bottle + five extracts",
+      img:"",
+      chipsLabel:"The five extracts inside",
+      chips:[["01","Prickly Pear"],["02","Passionflower"],["03","Marshmallow Root"],["04","Corydalis"],["05","California Poppy"]],
+      quote:"&ldquo;I started using Nerve Fresh because it was recommended to me by a nurse who understood my issue. After 2 months of using it I feel a lot more better and I don&rsquo;t feel the pain and tingling as before.&rdquo;",
+      author:"Gina Stein — Fresno, CA"
+    },
+    {
+      head:"For hands and feet that feel raw by the end of the day",
+      body:"Prickly pear is rich in antioxidant compounds and marshmallow root carries a soothing mucilage — both traditionally used to help the body manage the oxidative stress that accumulates in cells, tissue and muscle over the years.<sup>&dagger;</sup>",
+      shot:"Photo — hands, warm daylight",
+      img:"",
+      chipsLabel:"Driven by",
+      chips:[["01","Prickly Pear"],["03","Marshmallow Root"]],
+      quote:"&ldquo;I&rsquo;m a musician, but my neuropathy made it challenging to play. Since I started taking Nerve Fresh, I&rsquo;ve noticed a significant improvement in my hand and finger dexterity, flexibility, and sensitivity.&rdquo;",
+      author:"Jorge C. — Tampa, FL"
+    },
+    {
+      head:"Winding down shouldn&rsquo;t depend on how the day went",
+      body:"Passionflower is a well-known herbal agent studied for its calming effect and its association with GABA activity in the brain. California poppy has been used for generations as a gentle evening relaxant. Both are in every capsule — not sold as a separate night-time add-on.<sup>&dagger;</sup>",
+      shot:"Photo — bedside, evening light",
+      img:"",
+      chipsLabel:"Driven by",
+      chips:[["02","Passionflower"],["05","California Poppy"]],
+      rating:true
+    },
+    {
+      head:"Two capsules a day, and 180 days to decide",
+      body:"One capsule twice a day, 20–30 minutes before a meal with a glass of water. The makers recommend a minimum of 3 to 6 months for the full benefit of the formula — so every order ships free and is covered for a full 180 days, even if the bottles come back empty.<sup>&dagger;</sup>",
+      shot:"Photo — daily routine, glass of water",
+      img:"",
+      chipsLabel:"Also inside",
+      chips:[["04","Corydalis (Yanhusuo)"],["+","Vitamin &amp; mineral support"]],
+      quote:"&ldquo;After suffering from neuropathy for years, I had given up on going for long walks. Now I can enjoy long walks with my dog and stand for hours without feeling fatigued.&rdquo;",
+      author:"Kathy T. — Boston, MA"
+    }
+  ];
+
+  var root = document.getElementById('bslider');
+  if(!root) return;
+  var tabs   = [].slice.call(root.querySelectorAll('.btab'));
+  var bars   = [].slice.call(root.querySelectorAll('.btab-bar'));
+  var panel  = document.getElementById('bpanel');
+  var shot   = document.getElementById('bshot');
+  var label  = document.getElementById('bshot-label');
+  var eyebrow= document.getElementById('beyebrow');
+  var head   = document.getElementById('bhead');
+  var body   = document.getElementById('bbody');
+  var chipsL = document.getElementById('bchips-label');
+  var chips  = document.getElementById('bchips');
+  var proof  = document.getElementById('bproof');
+  var count  = document.getElementById('bcount');
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  var active = 0, elapsed = 0, paused = false, timer = null, seen = false;
+  var pad = function(n){ return (n<10?'0':'') + n; };
+
+  function render(i){
+    var d = DATA[i];
+    tabs.forEach(function(t,k){ t.setAttribute('aria-selected', k===i ? 'true' : 'false'); });
+
+    label.innerHTML = d.shot;
+    if(d.img){ shot.style.backgroundImage = 'url('+d.img+')'; label.style.display='none'; }
+    else { shot.style.backgroundImage = ''; label.style.display=''; }
+
+    eyebrow.innerHTML = 'Benefit ' + pad(i+1) + ' of ' + pad(DATA.length);
+    head.innerHTML  = d.head;
+    body.innerHTML  = d.body;
+    chipsL.innerHTML= d.chipsLabel;
+    count.innerHTML = pad(i+1) + ' / ' + pad(DATA.length);
+
+    chips.innerHTML = d.chips.map(function(c){
+      return '<a class="bchip" href="#formula"><b>'+c[0]+'</b>'+c[1]+'</a>';
+    }).join('');
+
+    if(d.quote){
+      proof.innerHTML =
+        '<figure class="bproof"><div class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>'+
+        '<blockquote>'+d.quote+'</blockquote>'+
+        '<figcaption>'+d.author+' <span>· Results may vary from person to person.</span></figcaption></figure>';
+    } else if(d.rating){
+      proof.innerHTML =
+        '<div class="bproof brating"><div class="score">4.9</div><div>'+
+        '<div class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>'+
+        '<small>from 3,776 reviews on the official site</small></div></div>';
+    } else { proof.innerHTML = ''; }
+
+    if(!reduce){
+      panel.classList.remove('bfade');
+      void panel.offsetWidth;           /* reinicia a animação */
+      panel.classList.add('bfade');
+    }
+  }
+
+  function go(i){
+    active = (i + DATA.length) % DATA.length;
+    elapsed = 0;
+    render(active);
+  }
+
+  function paint(){
+    bars.forEach(function(b,k){
+      b.style.width = (k===active) ? (SLIDE_MS ? (elapsed/SLIDE_MS*100)+'%' : '100%') : '0%';
+    });
+  }
+
+  tabs.forEach(function(t){
+    t.addEventListener('click', function(){ go(+t.dataset.i); paint(); });
+  });
+  document.getElementById('bnext').addEventListener('click', function(){ go(active+1); paint(); });
+  document.getElementById('bprev').addEventListener('click', function(){ go(active-1); paint(); });
+
+  root.addEventListener('keydown', function(e){
+    if(e.key==='ArrowRight'){ e.preventDefault(); go(active+1); paint(); }
+    if(e.key==='ArrowLeft'){  e.preventDefault(); go(active-1); paint(); }
+  });
+
+  root.addEventListener('mouseenter', function(){ paused = true; });
+  root.addEventListener('mouseleave', function(){ paused = false; });
+  root.addEventListener('focusin',    function(){ paused = true; });
+  root.addEventListener('focusout',   function(){ paused = false; });
+
+  var tx = null;
+  panel.addEventListener('touchstart', function(e){ tx = e.touches[0].clientX; }, {passive:true});
+  panel.addEventListener('touchend', function(e){
+    if(tx===null) return;
+    var dx = e.changedTouches[0].clientX - tx;
+    if(Math.abs(dx) > 45){ go(active + (dx<0?1:-1)); paint(); }
+    tx = null;
+  }, {passive:true});
+
+  /* auto-avanço: só roda quando a seção está visível na tela */
+  if(SLIDE_MS && !reduce){
+    timer = setInterval(function(){
+      if(paused || !seen || document.hidden) return;
+      elapsed += 60;
+      if(elapsed >= SLIDE_MS){ go(active+1); }
+      paint();
+    }, 60);
+
+    if('IntersectionObserver' in window){
+      new IntersectionObserver(function(en){ seen = en[0].isIntersecting; },{threshold:.25}).observe(root);
+    } else { seen = true; }
+  }
+
+  render(0); paint();
+})();
+</script>
 
 </body>
 </html>
