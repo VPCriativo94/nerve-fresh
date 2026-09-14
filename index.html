@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
   <title>Popup de Cookies</title>
+  <link rel="preload" as="image" href="/images/bg-desktop.jpg" media="(min-width: 481px)">
+  <link rel="preload" as="image" href="/images/bg-mobile.jpg" media="(max-width: 480px)">
   <style>
 
     html {
@@ -20,7 +22,7 @@
       min-height: 100dvh;
       width: 100%;
       box-sizing: border-box;
-      background-image: url("https://s3.eu-central-2.wasabisys.com/w.storage.screenshotapi.net/d2c68j2f45t8q9pdqn08tbjro1_hop_clickbank_net_e3828ff9cebf.png");
+      background-image: url("/images/bg-desktop.jpg");
       background-size: cover;
       background-position: center top;
       background-repeat: no-repeat;
@@ -31,7 +33,7 @@
 
     @media (max-width: 480px) {
       body {
-        background-image: url("https://s3.eu-central-2.wasabisys.com/w.storage.screenshotapi.net/d2c68j2f45t8q9pdqn08tbjro1_hop_clickbank_net_fa88036ca016.png") !important;
+        background-image: url("/images/bg-mobile.jpg") !important;
         background-size: cover !important;
         background-position: center top !important;
         background-attachment: scroll;
